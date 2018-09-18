@@ -1,6 +1,7 @@
 'use strict'
 
 const parseString = require('xml2js').parseString
+const tpl = require('./tpl')
 
 exports.parseXmlAsync = function (xml) {
   return new Promise((resolve, reject) => {
@@ -37,4 +38,19 @@ exports.formatMessage = function (result) {
     }
   }
   return message
+}
+
+exports.tpl = function(message) {
+  const info = {}
+  const type = 'text'
+  info.createTime = new Date().getTime()
+  info.msgType = type
+  info.ToUserName = message.ToUserName
+  info.FromUserName = message.FromUserName
+  if (typeof message.body === 'object') {
+    info.msgType = 'news'
+    info.ArticleCount = message.body.length
+  }
+  info.body = message.body
+  return tpl.compiled(info)
 }

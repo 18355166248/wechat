@@ -1,6 +1,7 @@
 'use strict'
 
 const request = require('request')
+const util = require('./util')
 
 const prefix = 'https://api.weixin.qq.com/cgi-bin/'
 const api = {
@@ -22,7 +23,7 @@ function Chat(opts) {
     }
 
     if (this.isValidAccessToken(data)) {
-      return data
+      return Promise.resolve(data)
     } else {
       return this.updateAccessToken()
     }
@@ -59,6 +60,16 @@ Chat.prototype.updateAccessToken = function () {
       resolve(data)
     })
   })
+}
+
+Chat.prototype.reply = function() {
+  const message = this.weixin
+  message.body = this.body
+  var xml = util.tpl(message)
+  console.log('xml', xml)
+  this.status = 200
+  this.type = 'application/xml'
+  this.body = xml
 }
 
 module.exports = Chat
