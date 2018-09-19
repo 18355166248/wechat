@@ -1,6 +1,7 @@
 'use strict'
 
 const parseString = require('xml2js').parseString
+const tpl = require('./tpl')
 
 exports.parseXmlAsync = function (xml) {
   return new Promise((resolve, reject) => {
@@ -37,4 +38,29 @@ exports.formatMessage = function (result) {
     }
   }
   return message
+}
+
+exports.tpl = function(message) {
+  const info = {}
+  const type = 'text'
+  info.createTime = new Date().getTime()
+  info.msgType = type
+  info.ToUserName = message.ToUserName
+  info.FromUserName = message.FromUserName
+  if (Array.isArray(message.body)) {
+    if (message.body[0] && message.body[0].type === 'news') {
+      info.msgType = 'news'
+      info.ArticleCount = message.body.length
+    }
+  } else if (typeof message.body === 'object' && !message.body.length) {
+    info.msgType = message.body.type
+    info.media_id = message.body.media_id
+    info.Title = message.body.Title
+    info.Description = message.body.Description
+    if (info.msgType === 'video') {
+
+    }
+  }
+  info.body = message.body
+  return tpl.compiled(info)
 }

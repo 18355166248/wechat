@@ -5,7 +5,7 @@ const getRawBody = require('raw-body')
 
 const Chat = require('./chat')
 const util = require('./util')
-module.exports = function (config) {
+module.exports = function (config, handler) {
   const chat = new Chat(config)
 
   return async function (ctx, next) {
@@ -34,17 +34,10 @@ module.exports = function (config) {
       })
       const xmlList = await util.parseXmlAsync(data)
       const message = util.formatMessage(xmlList.xml)
+      ctx.weixin = message
 
-      if (message.MsgType === 'event') {
-        if (message.Event === 'subscribe') {
-          console.log(message)
-          const now = new Date().getTime()
-          ctx.status = 200
-          ctx.type = 'application/xml'
-          ctx.body = `<xml><ToUserName><![CDATA[${message.FromUserName}]]></ToUserName><FromUserName><![CDATA[${message.ToUserName}]]></FromUserName> <CreateTime>${now}</CreateTime> <MsgType><![CDATA[text]]></MsgType><Content><![CDATA[我草拟妹!真的气]]></Content></xml>`
-          return
-        }
-      }
+      await handler.call(ctx, next)
+      chat.reply.call(ctx)
     }
   }
 }
