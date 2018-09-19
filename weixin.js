@@ -70,7 +70,7 @@ exports.reply = async function (next) {
         media_id: data.media_id
       }
     } else if (content === '8') {
-      const data = await chatApi.uploadMaterial('video', __dirname + '/static/video/be.mp4', {
+      const data = await chatApi.uploadMaterial('video', __dirname + '/static/video/3.mp4', {
         type: 'video',
         description: '{"title":"永久视频122", "introduction":"永久视频--描述"'
       })
@@ -78,12 +78,12 @@ exports.reply = async function (next) {
       reply = {
         type: 'video',
         media_id: data.media_id,
-        Title: '苹果回应苹果价格过高-永久',
-        Description: '爱买不买, 穷逼不配玩苹果'
+        Title: '20mIAO短视频-永久',
+        Description: '测试-=-=大萨达是'
       }
     } else if (content === '9') {
       const picData = await chatApi.uploadMaterial('image', __dirname + '/static/img/2.jpg', {})
-
+      console.log('是的撒大大', picData)
       let media = {
         "articles": [{
             "title": '测试-永久图片',
@@ -102,11 +102,9 @@ exports.reply = async function (next) {
 
       data = await chatApi.fetchMaterial('news', data.media_id, {})
 
-      console.log(data)
-
       const items = data.news_item
       let news = []
-      console.log('item======', items)
+
       items.forEach(v => {
         news.push({
           type: 'news',
@@ -117,7 +115,7 @@ exports.reply = async function (next) {
         })
       })
 
-      reply = items
+      reply = news
     }
 
     this.body = reply

@@ -20,6 +20,9 @@ const api = {
     update: prefix + 'material/update_news?', //修改永久图文素材
     count: prefix + 'material/get_materialcount?', //获取素材总数
     list: prefix + 'material/batchget_material?' //获取素材列表
+  },
+  group: {
+    
   }
 }
 
@@ -85,11 +88,11 @@ Chat.prototype.uploadMaterial = function (type, meterial, permanent) {
   }
 
   if (type === 'pic') {
-    uploadUrl = api.permanent.upload_img
+    uploadUrl = api.permanent.upload_img_no
   }
 
   if (type === 'news') {
-    uploadUrl = api.permanent.upload_img_no
+    uploadUrl = api.permanent.upload_img
     form = meterial
   } else {
     form.media = fs.createReadStream(meterial)
@@ -106,9 +109,11 @@ Chat.prototype.uploadMaterial = function (type, meterial, permanent) {
         method: 'POST',
         json: true
       }
-      if (type === 'news') options.body = form
-      else options.formData = form
-
+      if (type === 'news') {
+        options.body = form
+      } else {
+        options.formData = form
+      }
       request(options, function (error, response, data) {
         if (error) throw new Error('upload material error', error)
         resolve(data)
@@ -252,7 +257,7 @@ Chat.prototype.reply = function () {
   message.body = this.body
   var xml = util.tpl(message)
   this.status = 200
-  console.log('xml', xml)
+  console.log('xml=====>  ', xml)
   this.type = 'application/xml'
   this.body = xml
 }
