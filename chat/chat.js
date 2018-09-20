@@ -36,6 +36,10 @@ const api = {
     getUser: prefix + 'user/info?', // 获取用户基本信息(UnionID机制)
     batchget: prefix + 'user/info/batchget?', // 获取用户基本信息(UnionID机制)
     getUserList: prefix + 'user/get?', // 获取用户列表
+  },
+  mass: {
+    uploadNews: prefix + 'media/uploadnews?', // 上传图文消息素材【订阅号与服务号认证后均可用】
+    sendAll: prefix + 'message/mass/sendall?', //根据标签进行群发【订阅号与服务号认证后均可用】
   }
 }
 
@@ -228,7 +232,7 @@ Chat.prototype.countMaterial = function () {
 Chat.prototype.listMaterial = function (config) {
   return new Promise((resolve, reject) => {
     this.fetchAccessToken().then(data => {
-      let url = `${api.permanent.update}access_token=${data.access_token}`
+      let url = `${api.permanent.list}access_token=${data.access_token}`
 
       request({
         url: url,
@@ -458,6 +462,44 @@ Chat.prototype.getUserList = function(next_openid) {
       if (next_openid) url += '&next_openid=' + next_openid
       request(url, (error, response, data) => {
         if (error) throw new Error('create error Tag', error)
+        resolve(data)
+      })
+    })
+  })
+}
+
+/* 上传图文消息素材【订阅号与服务号认证后均可用】 */ 
+Chat.prototype.uploadNews = function(items) {
+  return new Promise((resolve, reject) => {
+    this.fetchAccessToken().then(data => {
+      let url = `${api.mass.uploadNews}access_token=${data.access_token}`
+      const options = {
+        url: url,
+        method: 'POST',
+        json: true,
+        body: items
+      }
+      request(options, (error, response, data) => {
+        if (error) throw new Error('mass sendAll error', error)
+        console.log('data========', data)
+        resolve(data)
+      })
+    })
+  })
+}
+/* 根据标签进行群发【订阅号与服务号认证后均可用】*/ 
+Chat.prototype.sendAll = function(form) {
+  return new Promise((resolve, reject) => {
+    this.fetchAccessToken().then(data => {
+      let url = `${api.mass.sendAll}access_token=${data.access_token}`
+      const options = {
+        url: url,
+        method: 'POST',
+        json: true,
+        body: form
+      }
+      request(options, (error, response, data) => {
+        if (error) throw new Error('mass sendAll error', error)
         resolve(data)
       })
     })

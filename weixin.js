@@ -103,6 +103,7 @@ exports.reply = async function (next) {
       data = await chatApi.fetchMaterial('news', data.media_id, {})
 
       const items = data.news_item
+      console.log('items==========', items)
       let news = []
 
       items.forEach(v => {
@@ -110,12 +111,22 @@ exports.reply = async function (next) {
           type: 'news',
           Title: v.title,
           Description: v.digest,
-          PicUrl: v.url,
-          Url: v.content_source_url
+          PicUrl: v.thumb_url,
+          Url: v.url
         })
       })
 
       reply = news
+    } else if (content === '素材列表') {
+      let list = await chatApi.listMaterial({type: 'news', offset: 0, count: 5})
+      list = JSON.stringify(list)
+      console.log(list)
+      reply = '获取成功'
+    } else if (content === '打标签102') {
+      let list = await chatApi.batchtaggingTag({openid_list : [message.FromUserName],   
+        "tagid" : 102 })
+      console.log(list)
+      reply = '打标签成功'
     } else if (content === '10') {
       try {
         await chatApi.deleteTag({tag:{id: 100}})
@@ -140,6 +151,31 @@ exports.reply = async function (next) {
       const openid = JSON.parse(userList).data.openid[0]
       const userData = await chatApi.getUserInfo([{openid: openid, lang: 'zh_CN'}])
       reply = userData
+    } else if (content === '13') {
+      const sendAll = {
+        filter:{
+           is_to_all: false,
+           tag_id: 102
+        },
+        mpnews:{
+           media_id: 'BwaPLY_-eqGXJAT2qkCK-4JmvPI0Krl-joLlZIip-3M'
+        },
+         msgtype: 'mpnews',
+         send_ignore_reprint:0
+      }
+      const txt = {
+        filter:{
+           is_to_all:false,
+           tag_id: 102
+        },
+        text:{
+           content:"测试1232131232131231231232145654645"
+        },
+         msgtype:"text"
+     }
+      const send = await chatApi.sendAll(sendAll)
+      console.log(send)
+      reply = '群发成功'
     }
 
     this.body = reply

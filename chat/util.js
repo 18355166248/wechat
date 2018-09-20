@@ -14,7 +14,7 @@ exports.parseXmlAsync = function (xml) {
   })
 }
 
-exports.formatMessage = function (result) {
+function formatMessage(result) {
   let message = {}
   if (typeof result === 'object') {
     const keys = Object.keys(result)
@@ -39,6 +39,8 @@ exports.formatMessage = function (result) {
   }
   return message
 }
+
+exports.formatMessage = formatMessage
 
 exports.tpl = function(message) {
   const info = {}
