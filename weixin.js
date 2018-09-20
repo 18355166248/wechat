@@ -116,6 +116,30 @@ exports.reply = async function (next) {
       })
 
       reply = news
+    } else if (content === '10') {
+      try {
+        await chatApi.deleteTag({tag:{id: 100}})
+        await chatApi.deleteTag({tag:{id: 101}})
+        await chatApi.deleteTag({tag:{id: 103}})
+        await chatApi.deleteTag({tag:{id: 104}})
+      } catch (error) {
+        throw new Error('delete error', error)
+      }
+
+      const list = await chatApi.getTag()
+      console.log(list)
+      const tagList = await chatApi.getidlistTag({openid: message.FromUserName})
+      console.log(tagList)
+      reply = JSON.stringify(list)
+    } else if (content === '11') {
+      const userData = await chatApi.getUserInfo([{openid: message.FromUserName, lang: 'zh_CN'}])
+      console.log(userData)
+      reply = userData
+    } else if (content === '12') {
+      const userList = await chatApi.getUserList()
+      const openid = JSON.parse(userList).data.openid[0]
+      const userData = await chatApi.getUserInfo([{openid: openid, lang: 'zh_CN'}])
+      reply = userData
     }
 
     this.body = reply
