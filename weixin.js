@@ -2,7 +2,14 @@
 
 const Chat = require('./chat/chat')
 const config = require('./config')
+const menu = require('./menu')
 const chatApi = new Chat(config)
+
+chatApi.deleteMenu().then(data => {
+  return chatApi.createMenu(menu)
+}).then(data => {
+  console.log(data)
+})
 
 exports.reply = async function (next) {
   const message = this.weixin
@@ -25,6 +32,31 @@ exports.reply = async function (next) {
       this.body = '看到了扫了一下哦'
     } else if (message.Event === 'VIEW') {
       this.body = '您点击了菜单中的链接: ' + message.EventKey
+    } else if (message.Event === 'scancode_push') {
+      console.log(message.ScanCodeInfo)
+      console.log(message.ScanResult)
+      this.body = '您点击了扫码推事件且弹出“消息接收中”提示框用户点击按钮后， '
+    } else if (message.Event === 'scancode_waitmsg') {
+      console.log(message.ScanCodeInfo)
+      console.log(message.ScanResult)
+      this.body = '您点击了弹出系统拍照发图用户点击按钮后，微信客户端将调起系统相机，完成拍照操作后， '
+    } else if (message.Event === 'pic_sysphoto') {
+      console.log(message.SendPicsInfo)
+      console.log(message.PicList)
+      this.body = '您点击了弹出系统拍照发图用户点击按钮后，微信客户端将调起系统相机， '
+    } else if (message.Event === 'pic_photo_or_album') {
+      console.log(message.SendPicsInfo)
+      console.log(message.PicList)
+      this.body = '您点击了弹出拍照或者相册发图用户点击按钮后 '
+    } else if (message.Event === 'pic_weixin') {
+      console.log(message.SendPicsInfo)
+      console.log(message.PicList)
+      this.body = '您点击了弹出微信相册发图器用户点击按钮后，微信客户端将调起微信相册 '
+    } else if (message.Event === 'location_select') {
+      console.log(message.SendLocationInfo)
+      this.body = '您点击了地理位置: ' + JSON.stringify(message.SendLocationInfo)
+    } else {
+      this.body ='empty news'
     }
   } else if (message.MsgType === 'text') {
     const content = message.Content
@@ -174,6 +206,28 @@ exports.reply = async function (next) {
          msgtype:"text"
      }
       const send = await chatApi.sendAll(sendAll)
+      console.log(send)
+      reply = '群发成功'
+    } else if (content === '14') {
+      const sendAll = {
+        touser: "oLXYw1dcmhpvENWmBJi89ZOqXh8Y", 
+        mpnews: {              
+          media_id: "BwaPLY_-eqGXJAT2qkCK-4JmvPI0Krl-joLlZIip-3M"               
+        },
+        msgtype:"mpnews" 
+      }
+      
+      const txt = {
+        filter:{
+           is_to_all:false,
+           tag_id: 102
+        },
+        text:{
+           content:"测试1232131232131231231232145654645"
+        },
+         msgtype:"text"
+     }
+      const send = await chatApi.preview(sendAll)
       console.log(send)
       reply = '群发成功'
     }

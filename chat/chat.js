@@ -39,7 +39,14 @@ const api = {
   },
   mass: {
     uploadNews: prefix + 'media/uploadnews?', // 上传图文消息素材【订阅号与服务号认证后均可用】
-    sendAll: prefix + 'message/mass/sendall?', //根据标签进行群发【订阅号与服务号认证后均可用】
+    sendAll: prefix + 'message/mass/sendall?', // 根据标签进行群发【订阅号与服务号认证后均可用】
+    preview: prefix + 'message/mass/preview?', // 预览接口【订阅号与服务号认证后均可用】
+  },
+  menu: {
+    create: prefix + 'menu/create?', // 创建菜单
+    get: prefix + 'menu/get?', // 查询菜单
+    delete: prefix + 'menu/delete?', // 删除菜单
+    current: prefix + 'get_current_selfmenu_info?', // 获取自定义菜单配置
   }
 }
 
@@ -500,6 +507,82 @@ Chat.prototype.sendAll = function(form) {
       }
       request(options, (error, response, data) => {
         if (error) throw new Error('mass sendAll error', error)
+        resolve(data)
+      })
+    })
+  })
+}
+/* 预览接口【订阅号与服务号认证后均可用】 */ 
+Chat.prototype.preview = function(form) {
+  return new Promise((resolve, reject) => {
+    this.fetchAccessToken().then(data => {
+      let url = `${api.mass.preview}access_token=${data.access_token}`
+      const options = {
+        url: url,
+        method: 'POST',
+        json: true,
+        body: form
+      }
+      request(options, (error, response, data) => {
+        if (error) throw new Error('preview error', error)
+        resolve(data)
+      })
+    })
+  })
+}
+
+/* 自定义菜单创建 */ 
+Chat.prototype.createMenu = function(form) {
+  return new Promise((resolve, reject) => {
+    this.fetchAccessToken().then(data => {
+      let url = `${api.menu.create}access_token=${data.access_token}`
+      const options = {
+        url: url,
+        method: 'POST',
+        json: true,
+        body: form
+      }
+      request(options, (error, response, data) => {
+        if (error) throw new Error('preview error', error)
+        resolve(data)
+      })
+    })
+  })
+}
+/* 自定义菜单查询 */ 
+Chat.prototype.getMenu = function(menu) {
+  return new Promise((resolve, reject) => {
+    this.fetchAccessToken().then(data => {
+      let url = `${api.menu.get}access_token=${data.access_token}`
+
+      request(url, (error, response, data) => {
+        if (error) throw new Error('create menu error', error)
+        resolve(data)
+      })
+    })
+  })
+}
+/* 自定义菜单删除 */ 
+Chat.prototype.deleteMenu = function() {
+  return new Promise((resolve, reject) => {
+    this.fetchAccessToken().then(data => {
+      let url = `${api.menu.delete}access_token=${data.access_token}`
+
+      request(url, (error, response, data) => {
+        if (error) throw new Error('preview error', error)
+        resolve(data)
+      })
+    })
+  })
+}
+/* 获取自定义菜单配置 */ 
+Chat.prototype.currentMenu = function(list) {
+  return new Promise((resolve, reject) => {
+    this.fetchAccessToken().then(data => {
+      let url = `${api.menu.current}access_token=${data.access_token}`
+
+      request(url, (error, response, data) => {
+        if (error) throw new Error('preview error', error)
         resolve(data)
       })
     })
