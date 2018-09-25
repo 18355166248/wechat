@@ -47,7 +47,8 @@ const api = {
     get: prefix + 'menu/get?', // 查询菜单
     delete: prefix + 'menu/delete?', // 删除菜单
     current: prefix + 'get_current_selfmenu_info?', // 获取自定义菜单配置
-  }
+  },
+  ticket: prefix + 'ticket/getticket?'
 }
 
 function Chat(opts) {
@@ -55,6 +56,9 @@ function Chat(opts) {
   this.appSecret = opts.wechat.appSecret
   this.getAccessToken = opts.getAccessToken
   this.saveAccessToken = opts.saveAccessToken
+  this.getTicket = opts.getTicket
+  this.saveTicket = opts.saveTicket
+
 
   this.getAccessToken().then(data => {
     try {
@@ -461,8 +465,8 @@ Chat.prototype.getUserInfo = function (form) {
   })
 }
 
-/* 获取用户列表 */ 
-Chat.prototype.getUserList = function(next_openid) {
+/* 获取用户列表 */
+Chat.prototype.getUserList = function (next_openid) {
   return new Promise((resolve, reject) => {
     this.fetchAccessToken().then(data => {
       let url = `${api.user.getUserList}access_token=${data.access_token}`
@@ -475,8 +479,8 @@ Chat.prototype.getUserList = function(next_openid) {
   })
 }
 
-/* 上传图文消息素材【订阅号与服务号认证后均可用】 */ 
-Chat.prototype.uploadNews = function(items) {
+/* 上传图文消息素材【订阅号与服务号认证后均可用】 */
+Chat.prototype.uploadNews = function (items) {
   return new Promise((resolve, reject) => {
     this.fetchAccessToken().then(data => {
       let url = `${api.mass.uploadNews}access_token=${data.access_token}`
@@ -494,8 +498,8 @@ Chat.prototype.uploadNews = function(items) {
     })
   })
 }
-/* 根据标签进行群发【订阅号与服务号认证后均可用】*/ 
-Chat.prototype.sendAll = function(form) {
+/* 根据标签进行群发【订阅号与服务号认证后均可用】*/
+Chat.prototype.sendAll = function (form) {
   return new Promise((resolve, reject) => {
     this.fetchAccessToken().then(data => {
       let url = `${api.mass.sendAll}access_token=${data.access_token}`
@@ -512,8 +516,8 @@ Chat.prototype.sendAll = function(form) {
     })
   })
 }
-/* 预览接口【订阅号与服务号认证后均可用】 */ 
-Chat.prototype.preview = function(form) {
+/* 预览接口【订阅号与服务号认证后均可用】 */
+Chat.prototype.preview = function (form) {
   return new Promise((resolve, reject) => {
     this.fetchAccessToken().then(data => {
       let url = `${api.mass.preview}access_token=${data.access_token}`
@@ -531,8 +535,8 @@ Chat.prototype.preview = function(form) {
   })
 }
 
-/* 自定义菜单创建 */ 
-Chat.prototype.createMenu = function(form) {
+/* 自定义菜单创建 */
+Chat.prototype.createMenu = function (form) {
   return new Promise((resolve, reject) => {
     this.fetchAccessToken().then(data => {
       let url = `${api.menu.create}access_token=${data.access_token}`
@@ -549,8 +553,8 @@ Chat.prototype.createMenu = function(form) {
     })
   })
 }
-/* 自定义菜单查询 */ 
-Chat.prototype.getMenu = function(menu) {
+/* 自定义菜单查询 */
+Chat.prototype.getMenu = function (menu) {
   return new Promise((resolve, reject) => {
     this.fetchAccessToken().then(data => {
       let url = `${api.menu.get}access_token=${data.access_token}`
@@ -562,8 +566,8 @@ Chat.prototype.getMenu = function(menu) {
     })
   })
 }
-/* 自定义菜单删除 */ 
-Chat.prototype.deleteMenu = function() {
+/* 自定义菜单删除 */
+Chat.prototype.deleteMenu = function () {
   return new Promise((resolve, reject) => {
     this.fetchAccessToken().then(data => {
       let url = `${api.menu.delete}access_token=${data.access_token}`
@@ -575,8 +579,8 @@ Chat.prototype.deleteMenu = function() {
     })
   })
 }
-/* 获取自定义菜单配置 */ 
-Chat.prototype.currentMenu = function(list) {
+/* 获取自定义菜单配置 */
+Chat.prototype.currentMenu = function (list) {
   return new Promise((resolve, reject) => {
     this.fetchAccessToken().then(data => {
       let url = `${api.menu.current}access_token=${data.access_token}`
@@ -587,6 +591,56 @@ Chat.prototype.currentMenu = function(list) {
       })
     })
   })
+}
+
+/* 获取tiket */
+Chat.prototype.fetchTicket = function (access_token) {
+  return new Promise((resolve, reject) => {
+    this.getTicket().then(data => {
+      
+      try {
+        data = JSON.parse(data)
+      } catch (e) {
+        return this.updateTicket(access_token)
+      }
+
+      if (this.isValidTicket(data)) {
+        return Promise.resolve(data)
+      } else {
+        return this.updateTicket(access_token)
+      }
+    }).then(data => {
+      this.ticket = data.ticket
+      this.expires_in = data.expires_in
+
+      this.saveTicket(data)
+      resolve(this)
+    })
+  })
+}
+/* 保存ticket */ 
+Chat.prototype.updateTicket = function (access_token) {
+  const url = `${api.ticket}&access_token=${access_token}&type=jsapi`
+
+  return new Promise((resolve, reject) => {
+    request(url, function (error, response, data) {
+      if (error) return console.log('getticket error:', error)
+      data = JSON.parse(data)
+      const now = new Date().getTime()
+      const expires_in = now + (data.expires_in - 20) * 1000
+      data.expires_in = expires_in
+      resolve(data)
+    })
+  })
+}
+/* 判断是否过期 */ 
+Chat.prototype.isValidTicket = function (data) {
+  if (!data || !data.ticket || !data.expires_in) return false
+  const ticket = data.ticket
+  const expires_in = data.expires_in
+  const now = new Date().getTime()
+  if (ticket && now < expires_in) return true
+  else return false
 }
 
 Chat.prototype.fetchAccessToken = function () {

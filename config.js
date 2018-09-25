@@ -1,6 +1,7 @@
 const util = require('./libs/util')
 const path = require('path')
 const chat_file =  path.join(__dirname, './config/wechat.txt')
+const ticket_file =  path.join(__dirname, './config/ticket.txt')
 
 const config = {
   wechat: {
@@ -14,6 +15,13 @@ const config = {
   saveAccessToken(data) {
     data = JSON.stringify(data)
     return util.writeFileAsync(chat_file, data)
+  },
+  getTicket() {
+    return util.readFileAsync(ticket_file)
+  },
+  saveTicket(data) {
+    data = JSON.stringify(data)
+    return util.writeFileAsync(ticket_file, data)
   }
 }
 
