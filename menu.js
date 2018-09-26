@@ -11,7 +11,7 @@ module.exports = {
       sub_button: [{
           type: 'view',
           name: '搜索',
-          url: 'http://www.soso.com/'
+          url: 'http://mdj.free.idcfengye.com/movie'
         }, {
           type: 'scancode_push',
           name: '扫码推送事件',
